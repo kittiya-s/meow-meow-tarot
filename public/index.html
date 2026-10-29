@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meow Meow Tarot - Web-Based Fortune Telling System</title>
+  <!-- Google Fonts matching proposal aesthetic -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- Toast Notification Container -->
+  <div id="toast" class="alert-toast"></div>
+
+  <!-- Mobile App Frame -->
+  <div class="app-container">
+    
+    <!-- Top Navigation / App Header -->
+    <header class="app-header">
+      <div class="brand-title" onclick="app.showScreen('screen-dashboard')">
+        <span class="cat-icon">🐱</span> Meow Meow Tarot
+      </div>
+      <div class="nav-actions">
+        <button id="nav-home-btn" class="nav-btn" onclick="app.showScreen('screen-dashboard')">Home</button>
+        <button id="nav-auth-btn" class="nav-btn" onclick="app.toggleAuth()">Log in</button>
+      </div>
+    </header>
+
+    <!-- Main Screens Viewport -->
+    <main class="screens-viewport">
+
+      <!-- ==============================================
+           SCREEN 1: LANDING SCREEN (Slide 7 Left Mockup)
+           ============================================== -->
+      <section id="screen-landing" class="screen active">
+        <div class="landing-hero">
+          <div class="witch-cat-badge">
+            <svg class="witch-cat-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Witch Hat -->
+              <polygon points="50,5 20,45 80,45" fill="#2d1b4e" stroke="#ffd154" stroke-width="2"/>
+              <ellipse cx="50" cy="45" rx="40" ry="8" fill="#1b0e33" stroke="#ffd154" stroke-width="2"/>
+              <rect x="36" y="38" width="28" height="6" fill="#e11d48"/>
+              <!-- Cat Head -->
+              <circle cx="50" cy="62" r="24" fill="#1c1917"/>
+              <polygon points="30,48 40,36 44,52" fill="#1c1917"/>
+              <polygon points="70,48 60,36 56,52" fill="#1c1917"/>
+              <!-- Cat Eyes -->
+              <ellipse cx="42" cy="62" rx="4" ry="6" fill="#fbbf24"/>
+              <ellipse cx="58" cy="62" rx="4" ry="6" fill="#fbbf24"/>
+              <ellipse cx="42" cy="62" rx="1.5" ry="5" fill="#000"/>
+              <ellipse cx="58" cy="62" rx="1.5" ry="5" fill="#000"/>
+              <!-- Nose & Whiskers -->
+              <polygon points="50,68 48,66 52,66" fill="#f43f5e"/>
+              <line x1="32" y1="67" x2="20" y2="65" stroke="#ffd154" stroke-width="1.5"/>
+              <line x1="32" y1="71" x2="22" y2="73" stroke="#ffd154" stroke-width="1.5"/>
+              <line x1="68" y1="67" x2="80" y2="65" stroke="#ffd154" stroke-width="1.5"/>
+              <line x1="68" y1="71" x2="78" y2="73" stroke="#ffd154" stroke-width="1.5"/>
+            </svg>
+          </div>
+          <h1 class="landing-title">Meow Meow<br>tarot</h1>
+          <p class="landing-tagline">Web-Based Fortune Telling System</p>
+          <button class="btn-primary" style="background:#52b788;" onclick="app.showScreen('screen-login')">
+            click to Login ✨
+          </button>
+        </div>
+      </section>
+
+      <!-- ==============================================
+           SCREEN 2: LOGIN / REGISTER (Slide 7 Middle & Right)
+           ============================================== -->
+      <section id="screen-login" class="screen">
+        <h2 id="auth-title" class="screen-title">Log in</h2>
+        <p class="screen-subtitle">Connect with your cosmic feline destiny</p>
+
+        <form id="auth-form" class="auth-form" onsubmit="app.handleAuthSubmit(event)">
+          <!-- Name (Shown in Register Mode) -->
+          <div class="form-group" id="group-name" style="display: none;">
+            <label for="input-name">Name</label>
+            <input type="text" id="input-name" class="form-input" placeholder="e.g. Luna Moon">
+          </div>
+
+          <!-- Email -->
+          <div class="form-group">
+            <label for="input-email">E-Mail</label>
+            <input type="email" id="input-email" class="form-input" placeholder="user@domain.com" required>
+          </div>
+
+          <!-- Password -->
+          <div class="form-group">
+            <label for="input-password">Password</label>
+            <input type="password" id="input-password" class="form-input" placeholder="••••••••" required>
+          </div>
+
+          <!-- Date of Birth (Shown in Register Mode) -->
+          <div class="form-group" id="group-birthdate" style="display: none;">
+            <label for="input-birthdate">Date of Birth</label>
+            <input type="date" id="input-birthdate" class="form-input">
+          </div>
+
+          <button type="submit" id="auth-submit-btn" class="btn-primary" style="background: #68d391; margin-top: 10px;">
+            Enter
+          </button>
+
+          <div class="auth-toggle">
+            <span id="auth-toggle-text">Don't have an account?</span>
+            <a onclick="app.switchAuthMode()" id="auth-toggle-link">Sign up</a>
+          </div>
+        </form>
+      </section>
+
+      <!-- ==============================================
+           SCREEN 3: TAROT CATEGORIES DASHBOARD (Slide 8 Left)
+           ============================================== -->
+      <section id="screen-dashboard" class="screen">
+        <!-- Active User Profile Bar -->
+        <div class="user-profile-badge" id="user-profile-badge">
+          <div class="info">
+            <h4 id="user-display-name">Seeker</h4>
+            <span id="user-display-zodiac">Zodiac: Calculating...</span>
+          </div>
+          <button class="nav-btn" onclick="app.logout()">Logout</button>
+        </div>
+
+        <h2 class="screen-title">TAROT</h2>
+        <p class="screen-subtitle">CATEGORIES</p>
+
+        <div class="categories-grid">
+          <!-- Numerology -->
+          <div class="category-card" onclick="app.showScreen('screen-numerology')">
+            <span class="category-icon">🔮</span>
+            <h3>Numerology</h3>
+            <p>Life Path & Destiny</p>
+          </div>
+
+          <!-- Tarot Reading -->
+          <div class="category-card" onclick="app.showScreen('screen-tarot-reading')">
+            <span class="category-icon">🃏</span>
+            <h3>Tarot Cards</h3>
+            <p>Interactive Draw</p>
+          </div>
+
+          <!-- Horoscope -->
+          <div class="category-card" onclick="app.showScreen('screen-horoscope')">
+            <span class="category-icon">🌌</span>
+            <h3>Horoscope</h3>
+            <p>Zodiac Alignments</p>
+          </div>
+
+          <!-- Daily Cards -->
+          <div class="category-card" onclick="app.openDailyPrediction()">
+            <span class="category-icon">🌙</span>
+            <h3>Daily Cards</h3>
+            <p>Today's Fortune</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==============================================
+           SCREEN 4: NUMEROLOGY CALCULATION (Slide 8 Middle & Right)
+           ============================================== -->
+      <section id="screen-numerology" class="screen">
+        <h2 class="screen-title">NUMEROLOGY</h2>
+        <p class="screen-subtitle">Discover your sacred life path vibration</p>
+
+        <!-- Calculation Input View -->
+        <div id="numerology-calc-view" class="numerology-calc-card">
+          <div class="numerology-digits-bg">5 1 4 3 2</div>
+          <p style="color: var(--text-sub); margin-bottom: 20px;">Calculate Life Path Number</p>
+          <div class="form-group" style="text-align: left;">
+            <label for="num-birthdate">Select Date of Birth</label>
+            <input type="date" id="num-birthdate" class="form-input">
+          </div>
+          <button class="btn-primary" style="background:#48bb78;" onclick="app.calculateNumerology()">
+            Click!! ✨
+          </button>
+        </div>
+
+        <!-- Numerology Result View (Matches Slide 8 Right Mockup) -->
+        <div id="numerology-result-view" style="display: none;">
+          <div class="result-number-badge" id="num-result-badge">
+            Number : <span id="num-result-number">21</span>
+          </div>
+
+          <div class="attribute-card">
+            <h4>💼 Career</h4>
+            <p id="num-career-text">Loading career path...</p>
+          </div>
+
+          <div class="attribute-card">
+            <h4>📚 Education</h4>
+            <p id="num-education-text">Loading education insights...</p>
+          </div>
+
+          <div class="attribute-card">
+            <h4>🪙 Finance</h4>
+            <p id="num-finance-text">Loading financial guidance...</p>
+          </div>
+
+          <div class="attribute-card">
+            <h4>💖 Relationships</h4>
+            <p id="num-relationships-text">Loading love guidance...</p>
+          </div>
+
+          <button class="btn-secondary" style="margin-top: 15px;" onclick="app.resetNumerology()">
+            Recalculate
+          </button>
+        </div>
+      </section>
+
+      <!-- ==============================================
+           SCREEN 5: DAILY TAROT PREDICTION (Slide 9 Mockups)
+           ============================================== -->
+      <section id="screen-daily" class="screen">
+        <h2 class="screen-title">DAILY CARD</h2>
+        <p class="screen-subtitle">Your personal daily omen & guide</p>
+
+        <div class="daily-container">
+          <!-- Initial Draw View -->
+          <div id="daily-draw-view">
+            <div class="card-frame">
+              <div class="card-inner" id="daily-card-inner">
+                <div class="card-face card-front">
+                  <img src="/assets/cards/card_back.svg" alt="Tarot Card Back">
+                </div>
+                <div class="card-face card-back">
+                  <img id="daily-card-img" src="/assets/cards/the_empress.svg" alt="Daily Tarot Card">
+                </div>
+              </div>
+            </div>
+            <button id="view-horoscope-btn" class="btn-primary" style="background: #48bb78; max-width: 260px;" onclick="app.revealDailyCard()">
+              View Today's Horoscope
+            </button>
+          </div>
+
+          <!-- Prediction Detail View (Slide 9 Center) -->
+          <div id="daily-revealed-view" style="display: none;">
+            <div style="width: 200px; height: 320px; margin: 0 auto 16px;">
+              <img id="revealed-daily-img" src="/assets/cards/the_empress.svg" style="width: 100%; height: 100%; border-radius: 16px;" alt="Drawn Daily Card">
+            </div>
+            <div class="prediction-message-box" id="daily-message-text">
+              This card encourages you to take care of yourself and what you value, trust the process, and allow things to develop with patience and care.
+            </div>
+            <button class="btn-primary" style="background: #48bb78; max-width: 160px; margin: 0 auto;" onclick="app.showScreen('screen-dashboard')">
+              Next ➔
+            </button>
+          </div>
+
+          <!-- Already Viewed View (Slide 9 Right) -->
+          <div id="daily-already-viewed-view" class="already-viewed-box" style="display: none;">
+            <h3>You've already viewed today's Tarot Card</h3>
+            <p>Come back tomorrow for a new one!</p>
+            <button class="btn-secondary" style="max-width: 150px; margin: 0 auto;" onclick="app.showScreen('screen-dashboard')">
+              ← Back
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==============================================
+           SCREEN 6: ZODIAC HOROSCOPES (Slide 10 Mockups)
+           ============================================== -->
+      <section id="screen-horoscope" class="screen">
+        <h2 class="screen-title">HOROSCOPE</h2>
+        <p class="screen-subtitle">Select your astrological zodiac</p>
+
+        <!-- 12 Zodiac Icons Grid (Slide 10 Left) -->
+        <div class="zodiac-grid" id="zodiac-grid">
+          <!-- Dynamically populated via JS -->
+        </div>
+
+        <!-- Horoscope Detail View (Slide 10 Right - Pisces Example) -->
+        <div id="horoscope-detail-view" class="horoscope-details" style="display: none;">
+          <div class="horoscope-header">
+            <h3 id="horoscope-sign-name">Pisces</h3>
+            <span id="horoscope-sign-meta">Water Element • Feb 19 - Mar 20</span>
+          </div>
+
+          <div class="attribute-card">
+            <h4>💼 Career</h4>
+            <p id="horoscope-career-text">Opportunities await...</p>
+          </div>
+
+          <div class="attribute-card">
+            <h4>📚 Education</h4>
+            <p id="horoscope-education-text">Focus and study guidance...</p>
+          </div>
+
+          <div class="attribute-card">
+            <h4>🪙 Finance</h4>
+            <p id="horoscope-finance-text">Financial advice...</p>
+          </div>
+
+          <div class="attribute-card">
+            <h4>✨ Overall</h4>
+            <p id="horoscope-overall-text">General astrological forecast...</p>
+          </div>
+
+          <button class="btn-secondary" style="margin-top: 15px;" onclick="app.backToZodiacGrid()">
+            ← Choose Another Sign
+          </button>
+        </div>
+      </section>
+
+      <!-- ==============================================
+           SCREEN 7: TAROT READING FLOW (Slide 11 Mockups)
+           ============================================== -->
+      <section id="screen-tarot-reading" class="screen">
+        <h2 class="screen-title">TAROT READING</h2>
+        <p class="screen-subtitle">Focus on your intention and select 1 card</p>
+
+        <!-- Shuffled Card Deck Fan (Slide 11 Left) -->
+        <div id="tarot-fan-view" class="tarot-table">
+          <div class="cards-fan-container" id="tarot-deck-container">
+            <!-- 5-7 interactive tarot cards fanned out dynamically -->
+          </div>
+        </div>
+
+        <!-- Revealed Tarot Card (Slide 11 Right - Queen of Wands) -->
+        <div id="tarot-reveal-view" class="tarot-reveal-view" style="display: none;">
+          <img id="reading-card-img" class="revealed-card-img" src="/assets/cards/queen_of_wands.svg" alt="Revealed Card">
+          <div class="prediction-message-box" id="reading-meaning-text">
+            This card is a positive sign of self-confidence, leadership, and pursuing your goals with enthusiasm.
+          </div>
+          <button class="btn-primary" style="background: #48bb78; max-width: 180px;" onclick="app.resetTarotReading()">
+            Draw Again 🎴
+          </button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
+
