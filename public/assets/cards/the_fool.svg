@@ -43,5 +43,5 @@
   <text x="150" y="368" font-family="'Cinzel', Georgia, serif" font-size="16" font-weight="bold" fill="#fff275" text-anchor="middle" letter-spacing="2">THE FOOL</text>
 
   <!-- Subtitle / Keyword -->
-  <text x="150" y="415" font-family="'Quicksand', sans-serif" font-size="12" fill="#f3e8ff" text-anchor="middle" font-weight="500">New Beginnings & Wonder</text>
+  <text x="150" y="415" font-family="'Quicksand', sans-serif" font-size="12" fill="#f3e8ff" text-anchor="middle" font-weight="500">New Beginnings &amp; Wonder</text>
 </svg>

@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="480" viewBox="0 0 300 480">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="goldBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffd700"/>
+      <stop offset="50%" stop-color="#fff275"/>
+      <stop offset="100%" stop-color="#cca01d"/>
+    </linearGradient>
+    <radialGradient id="celestialGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Outer Card Frame -->
+  <rect x="5" y="5" width="290" height="470" rx="18" fill="#1b122c" stroke="url(#goldBorder)" stroke-width="6"/>
+  <!-- Inner Ornamental Inset -->
+  <rect x="15" y="15" width="270" height="450" rx="14" fill="url(#bgGrad)" opacity="0.92"/>
+  <rect x="22" y="22" width="256" height="436" rx="10" fill="none" stroke="url(#goldBorder)" stroke-width="1.8" stroke-dasharray="4,3"/>
+
+  <!-- Mystic Header Number -->
+  <text x="150" y="48" font-family="'Cinzel', Georgia, serif" font-size="20" font-weight="bold" fill="#fff275" text-anchor="middle" letter-spacing="3">W</text>
+
+  <!-- Central Celestial Sphere -->
+  <circle cx="150" cy="210" r="95" fill="url(#celestialGlow)"/>
+  <circle cx="150" cy="210" r="85" fill="#120b22" stroke="url(#goldBorder)" stroke-width="2"/>
+
+  <!-- Central Symbol / Cat Icon -->
+  <text x="150" y="200" font-size="54" text-anchor="middle" dominant-baseline="middle">🌻</text>
+  <text x="150" y="245" font-family="'Cinzel', Georgia, serif" font-size="12" fill="#ffd700" text-anchor="middle" letter-spacing="1">MEOW TAROT</text>
+
+  <!-- Corner Ornamental Stars -->
+  <text x="35" y="42" font-size="16" fill="#ffd700">✦</text>
+  <text x="265" y="42" font-size="16" fill="#ffd700" text-anchor="end">✦</text>
+  <text x="35" y="445" font-size="16" fill="#ffd700">✦</text>
+  <text x="265" y="445" font-size="16" fill="#ffd700" text-anchor="end">✦</text>
+
+  <!-- Title Banner -->
+  <rect x="30" y="340" width="240" height="45" rx="8" fill="#110c1f" stroke="url(#goldBorder)" stroke-width="2"/>
+  <text x="150" y="368" font-family="'Cinzel', Georgia, serif" font-size="16" font-weight="bold" fill="#fff275" text-anchor="middle" letter-spacing="2">QUEEN OF WANDS</text>
+
+  <!-- Subtitle / Keyword -->
+  <text x="150" y="415" font-family="'Quicksand', sans-serif" font-size="12" fill="#f3e8ff" text-anchor="middle" font-weight="500">Vibrant Leadership</text>
+</svg>

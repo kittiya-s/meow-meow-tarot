@@ -1,0 +1,6 @@
+node_modules
+.env
+meow_tarot.db
+meow_tarot.db-journal
+*.log
+

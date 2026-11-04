@@ -14,11 +14,11 @@
   <rect x="5" y="5" width="290" height="470" rx="18" fill="url(#backGrad)" stroke="url(#goldBack)" stroke-width="6"/>
   <rect x="18" y="18" width="264" height="444" rx="12" fill="none" stroke="url(#goldBack)" stroke-width="2" stroke-dasharray="6,4"/>
   
-  <!-- Sacred Geometry Sun & Moon Pattern -->
+  <!-- Sacred Geometry Sun &amp; Moon Pattern -->
   <circle cx="150" cy="240" r="80" fill="none" stroke="url(#goldBack)" stroke-width="2"/>
   <circle cx="150" cy="240" r="60" fill="none" stroke="url(#goldBack)" stroke-width="1.5" stroke-dasharray="3,3"/>
   
-  <!-- Cat eyes & Crescent Motif -->
+  <!-- Cat eyes &amp; Crescent Motif -->
   <path d="M 150 175 Q 195 240 150 305 Q 105 240 150 175 Z" fill="none" stroke="url(#goldBack)" stroke-width="2"/>
   <text x="150" y="248" font-size="44" text-anchor="middle" dominant-baseline="middle" fill="#ffd700">🐱</text>
   
