@@ -5,7 +5,7 @@
 // Must run AFTER authMiddleware, which sets req.user from the JWT.
 // ============================================================================
 
-const { db } = require('../db');
+const { queryOne } = require('../db');
 
 /**
  * Allow the request only if the logged-in user's role is in allowedRoles.
@@ -15,9 +15,9 @@ const { db } = require('../db');
  * Usage: router.delete('/cards/:id', authMiddleware, requireRole('admin'), handler)
  */
 function requireRole(...allowedRoles) {
-  return (req, res, next) => {
+  return async (req, res, next) => {
     try {
-      const row = db.prepare('SELECT role FROM USERS WHERE user_id = ?').get(req.user.user_id);
+      const row = await queryOne('SELECT role FROM USERS WHERE user_id = ?', [req.user.user_id]);
 
       if (!row) {
         return res.status(401).json({ error: 'Account not found. Please log in again.' });

@@ -44,20 +44,20 @@ const adminController = {
 
   // ---------------- Cards (Admin: full CRUD, Developer: read-only) ----------------
 
-  listCards(req, res) {
+  async listCards(req, res) {
     try {
-      return res.json({ cards: AdminModel.listCards() });
+      return res.json({ cards: await AdminModel.listCards() });
     } catch (err) {
       console.error('Admin List Cards Error:', err);
       return res.status(500).json({ error: 'Failed to load cards.' });
     }
   },
 
-  createCard(req, res) {
+  async createCard(req, res) {
     const { data, error } = validateCard(req.body);
     if (error) return res.status(400).json({ error });
     try {
-      const card = AdminModel.createCard(data);
+      const card = await AdminModel.createCard(data);
       return res.status(201).json({ message: 'Card created.', card });
     } catch (err) {
       console.error('Admin Create Card Error:', err);
@@ -65,13 +65,13 @@ const adminController = {
     }
   },
 
-  updateCard(req, res) {
+  async updateCard(req, res) {
     const cardId = parseId(req.params.id);
     if (!cardId) return res.status(400).json({ error: 'Invalid card id.' });
     const { data, error } = validateCard(req.body);
     if (error) return res.status(400).json({ error });
     try {
-      const card = AdminModel.updateCard(cardId, data);
+      const card = await AdminModel.updateCard(cardId, data);
       if (!card) return res.status(404).json({ error: 'Card not found.' });
       return res.json({ message: 'Card updated.', card });
     } catch (err) {
@@ -80,11 +80,11 @@ const adminController = {
     }
   },
 
-  deleteCard(req, res) {
+  async deleteCard(req, res) {
     const cardId = parseId(req.params.id);
     if (!cardId) return res.status(400).json({ error: 'Invalid card id.' });
     try {
-      const deleted = AdminModel.deleteCard(cardId);
+      const deleted = await AdminModel.deleteCard(cardId);
       if (!deleted) return res.status(404).json({ error: 'Card not found.' });
       return res.json({ message: 'Card deleted.' });
     } catch (err) {
@@ -95,23 +95,23 @@ const adminController = {
 
   // ---------------- Users (Admin only) ----------------
 
-  listUsers(req, res) {
+  async listUsers(req, res) {
     try {
-      return res.json({ users: AdminModel.listUsers() });
+      return res.json({ users: await AdminModel.listUsers() });
     } catch (err) {
       console.error('Admin List Users Error:', err);
       return res.status(500).json({ error: 'Failed to load users.' });
     }
   },
 
-  updateUserRole(req, res) {
+  async updateUserRole(req, res) {
     const userId = parseId(req.params.id);
     const role = String(req.body.role || '');
     if (!userId) return res.status(400).json({ error: 'Invalid user id.' });
     if (!ROLES.includes(role)) return res.status(400).json({ error: 'Role must be user, admin or developer.' });
     if (userId === req.user.user_id) return res.status(400).json({ error: 'You cannot change your own role.' });
     try {
-      const updated = AdminModel.updateUserRole(userId, role);
+      const updated = await AdminModel.updateUserRole(userId, role);
       if (!updated) return res.status(404).json({ error: 'User not found.' });
       return res.json({ message: 'Role updated.' });
     } catch (err) {
@@ -120,12 +120,12 @@ const adminController = {
     }
   },
 
-  deleteUser(req, res) {
+  async deleteUser(req, res) {
     const userId = parseId(req.params.id);
     if (!userId) return res.status(400).json({ error: 'Invalid user id.' });
     if (userId === req.user.user_id) return res.status(400).json({ error: 'You cannot delete your own account here.' });
     try {
-      const deleted = AdminModel.deleteUser(userId);
+      const deleted = await AdminModel.deleteUser(userId);
       if (!deleted) return res.status(404).json({ error: 'User not found.' });
       return res.json({ message: 'User deleted.' });
     } catch (err) {
@@ -136,18 +136,18 @@ const adminController = {
 
   // ---------------- Developer tools (Developer only) ----------------
 
-  auditLogs(req, res) {
+  async auditLogs(req, res) {
     try {
-      return res.json({ logs: AdminModel.listAuditLogs(50) });
+      return res.json({ logs: await AdminModel.listAuditLogs() });
     } catch (err) {
       console.error('Audit Log Error:', err);
       return res.status(500).json({ error: 'Failed to load audit logs.' });
     }
   },
 
-  stats(req, res) {
+  async stats(req, res) {
     try {
-      return res.json({ stats: AdminModel.tableStats() });
+      return res.json({ stats: await AdminModel.tableStats() });
     } catch (err) {
       console.error('Stats Error:', err);
       return res.status(500).json({ error: 'Failed to load statistics.' });

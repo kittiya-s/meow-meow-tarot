@@ -4,7 +4,7 @@
 // using the Stored Procedure/Function logic and returning detailed interpretations.
 // ============================================================================
 
-const { db, spCalculateLifePath } = require('../db');
+const { query, callLifePathProcedure } = require('../db');
 
 // Numerology Interpretations matching Slide 8 of proposal
 const NUMEROLOGY_MEANINGS = {
@@ -88,19 +88,22 @@ const numerologyController = {
    * Route: POST /api/numerology
    * Body: { birth_date }
    */
-  calculate(req, res) {
+  async calculate(req, res) {
     try {
       const { birth_date } = req.body;
-      const userId = req.user ? req.user.user_id : (req.body.userId || null);
+      // Only trust the logged-in user from the JWT (never a userId sent in the body)
+      const userId = req.user ? req.user.user_id : null;
 
       // Step 1: Validate birth date input
       if (!birth_date) {
         return res.status(400).json({ error: 'birth_date is required to calculate life path number.' });
       }
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(birth_date)) {
+        return res.status(400).json({ error: 'Birth date must be in YYYY-MM-DD format.' });
+      }
 
-      // Step 2: Execute Stored Procedure / Function to compute Life Path Number
-      // Called through the SQL engine so the routine runs inside the database layer
-      const lifePathNumber = db.prepare('SELECT sp_calculate_life_path(?) AS lpn').get(birth_date).lpn;
+      // Step 2: CALL the MySQL stored procedure sp_calculate_life_path
+      const lifePathNumber = await callLifePathProcedure(birth_date);
 
       // Step 3: Look up detailed interpretation
       const detail = NUMEROLOGY_MEANINGS[lifePathNumber] || NUMEROLOGY_MEANINGS[lifePathNumber % 9 || 9];
@@ -108,10 +111,10 @@ const numerologyController = {
 
       // Step 4: If seeker is logged in, persist result in NUMEROLOGY table
       if (userId) {
-        db.prepare(`
-          INSERT INTO NUMEROLOGY (user_id, life_path_number, meaning, calculated_date)
-          VALUES (?, ?, ?, ?)
-        `).run(userId, lifePathNumber, JSON.stringify(detail), calculatedDate);
+        await query(
+          'INSERT INTO NUMEROLOGY (user_id, life_path_number, meaning, calculated_date) VALUES (?, ?, ?, NOW())',
+          [userId, lifePathNumber, JSON.stringify(detail)]
+        );
       }
 
       // Step 5: Return calculated vibration and breakdown
@@ -130,15 +133,15 @@ const numerologyController = {
    * Get past numerology calculation history for authenticated user
    * Route: GET /api/numerology/history
    */
-  getHistory(req, res) {
+  async getHistory(req, res) {
     try {
       const userId = req.user.user_id;
-      const history = db.prepare(`
+      const history = await query(`
         SELECT result_id, life_path_number, meaning, calculated_date
         FROM NUMEROLOGY
         WHERE user_id = ?
         ORDER BY calculated_date DESC
-      `).all(userId);
+      `, [userId]);
 
       return res.status(200).json(history);
     } catch (err) {

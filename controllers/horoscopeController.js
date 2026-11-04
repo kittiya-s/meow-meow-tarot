@@ -4,17 +4,17 @@
 // categorized by Career/Work, Education/Study, Finance, and Overall guidance.
 // ============================================================================
 
-const { db } = require('../db');
+const { query, queryOne } = require('../db');
 
 const horoscopeController = {
   /**
    * Get all 12 Zodiac signs
    * Route: GET /api/zodiacs
    */
-  getAllZodiacs(req, res) {
+  async getAllZodiacs(req, res) {
     try {
       // Query all zodiacs in order
-      const zodiacs = db.prepare('SELECT * FROM ZODIAC ORDER BY zodiac_id ASC').all();
+      const zodiacs = await query('SELECT * FROM ZODIAC ORDER BY zodiac_id ASC');
       return res.status(200).json(zodiacs);
     } catch (err) {
       console.error('Error fetching zodiacs:', err);
@@ -27,13 +27,13 @@ const horoscopeController = {
    * Route: GET /api/horoscope/:identifier
    * e.g., /api/horoscope/Pisces or /api/horoscope/12
    */
-  getHoroscope(req, res) {
+  async getHoroscope(req, res) {
     const { identifier } = req.params;
     try {
-      let query;
+      let sql;
       // Step 1: Check if identifier is numeric ID or string name
       if (isNaN(identifier)) {
-        query = `
+        sql = `
           SELECT z.zodiac_id, z.zodiac_name, z.element, z.symbol, z.date_range,
                  h.overall, h.study, h.work, h.love
           FROM ZODIAC z
@@ -41,7 +41,7 @@ const horoscopeController = {
           WHERE LOWER(z.zodiac_name) = LOWER(?)
         `;
       } else {
-        query = `
+        sql = `
           SELECT z.zodiac_id, z.zodiac_name, z.element, z.symbol, z.date_range,
                  h.overall, h.study, h.work, h.love
           FROM ZODIAC z
@@ -51,7 +51,7 @@ const horoscopeController = {
       }
 
       // Step 2: Execute query with parameter
-      const result = db.prepare(query).get(identifier);
+      const result = await queryOne(sql, [identifier]);
       if (!result) {
         return res.status(404).json({ error: 'Horoscope forecast not found for this zodiac.' });
       }

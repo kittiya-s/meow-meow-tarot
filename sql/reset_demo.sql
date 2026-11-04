@@ -1,5 +1,6 @@
 -- RESET SCRIPT: drops and rebuilds meow_meow_tarot with tables, SP, triggers and demo data
 -- Generated from schema.sql + sample_data.sql + demo_seed.sql. Run the whole file (lightning bolt).
+-- After running it, restart the app (node server.js) so demo passwords from .env are applied.
 
 -- =======================================================
 -- Meow Meow Tarot: MySQL / MariaDB Schema, SPs & Triggers
@@ -296,7 +297,8 @@ INSERT IGNORE INTO DAILY_PREDICTIONS (daily_prediction_id, card_id, message) VAL
 -- =======================================================
 -- Demo seed: one account per role + a few readings
 -- Run AFTER schema.sql and sample_data.sql
--- (Passwords are placeholder bcrypt-style strings; the running app hashes its own.)
+-- Passwords here are placeholders. When the app starts it sets the real
+-- passwords from .env (ADMIN_*, DEV_*, USER_*) as bcrypt hashes.
 -- =======================================================
 USE meow_meow_tarot;
 

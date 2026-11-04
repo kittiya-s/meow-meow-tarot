@@ -9,8 +9,8 @@ const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
 
-// Step 1: Initialize database schema, triggers, and sample records
-require('./db');
+// Step 1: MySQL connection pool (credentials from .env)
+const { initDatabase } = require('./db');
 
 // Step 2: Import modular route handlers (MVC Routes)
 const authRoutes = require('./routes/authRoutes');
@@ -88,6 +88,11 @@ app.use((err, req, res, next) => {
 // ============================================================================
 // Start Server Listening
 // ============================================================================
-app.listen(PORT, () => {
-  console.log(`✨ Meow Meow Tarot server is running at: http://localhost:${PORT}`);
-});
+// Check MySQL first, then start listening
+initDatabase()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`✨ Meow Meow Tarot server is running at: http://localhost:${PORT}`);
+    });
+  })
+  .catch(() => process.exit(1));

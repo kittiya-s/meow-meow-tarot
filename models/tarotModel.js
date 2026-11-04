@@ -1,101 +1,84 @@
 // ============================================================================
 // File: models/tarotModel.js
 // Description: Data Access Object for TAROT_CARDS, TAROT_READINGS,
-// DAILY_PREDICTIONS, and USER_DAILY_PREDICTIONS tables.
+// DAILY_PREDICTIONS and USER_DAILY_PREDICTIONS (MySQL).
 // ============================================================================
 
-const { db } = require('../db');
+const { query, queryOne } = require('../db');
 
 const TarotModel = {
-  /**
-   * Fetch all 22 Major Arcana cards from TAROT_CARDS
-   */
+  /** All cards in the deck */
   getAllCards() {
-    return db.prepare('SELECT * FROM TAROT_CARDS ORDER BY card_id ASC').all();
+    return query('SELECT * FROM TAROT_CARDS ORDER BY card_id ASC');
   },
 
-  /**
-   * Fetch a single Tarot card by card_id
-   */
+  /** One card by primary key */
   getCardById(cardId) {
-    return db.prepare('SELECT * FROM TAROT_CARDS WHERE card_id = ?').get(cardId);
+    return queryOne('SELECT * FROM TAROT_CARDS WHERE card_id = ?', [cardId]);
   },
 
-  /**
-   * Select a random Tarot card from the deck
-   */
+  /** A random card from the deck */
   getRandomCard() {
-    const cards = this.getAllCards();
-    return cards[Math.floor(Math.random() * cards.length)];
+    return queryOne('SELECT * FROM TAROT_CARDS ORDER BY RAND() LIMIT 1');
   },
 
   /**
-   * Create an interactive reading record in TAROT_READINGS
-   * Note: Triggers trg_after_tarot_reading_insert to record in READING_AUDIT_LOGS.
+   * Save a reading. The AFTER INSERT trigger trg_after_tarot_reading_insert
+   * automatically writes a row into READING_AUDIT_LOGS.
    */
-  createReading(userId, cardId, readingDate, question = 'General Reading') {
-    const stmt = db.prepare(`
-      INSERT INTO TAROT_READINGS (user_id, card_id, reading_date, question)
-      VALUES (?, ?, ?, ?)
-    `);
-    const info = stmt.run(userId, cardId, readingDate, question);
-    return info.lastInsertRowid;
+  async createReading(userId, cardId, question = 'General Reading') {
+    const result = await query(
+      'INSERT INTO TAROT_READINGS (user_id, card_id, reading_date, question) VALUES (?, ?, NOW(), ?)',
+      [userId, cardId, question]
+    );
+    return result.insertId;
   },
 
-  /**
-   * Get all past readings for a user
-   */
+  /** Reading history of one user (JOIN with TAROT_CARDS) */
   getUserReadings(userId) {
-    return db.prepare(`
+    return query(`
       SELECT tr.reading_id, tr.reading_date, tr.question,
              tc.card_id, tc.card_name, tc.meaning, tc.image
       FROM TAROT_READINGS tr
       JOIN TAROT_CARDS tc ON tr.card_id = tc.card_id
       WHERE tr.user_id = ?
       ORDER BY tr.reading_date DESC
-    `).all(userId);
+    `, [userId]);
   },
 
-  /**
-   * Check if user drew a daily card today by comparing date(opened_at)
-   */
-  getDailyStatusForUser(userId, todayDateStr) {
-    return db.prepare(`
+  /** Today's daily card for this user, if already drawn */
+  getDailyStatusForUser(userId) {
+    return queryOne(`
       SELECT udp.open_id, udp.opened_at, dp.message, dp.card_id,
              tc.card_name, tc.image, tc.meaning
       FROM USER_DAILY_PREDICTIONS udp
       JOIN DAILY_PREDICTIONS dp ON udp.daily_prediction_id = dp.daily_prediction_id
       LEFT JOIN TAROT_CARDS tc ON dp.card_id = tc.card_id
-      WHERE udp.user_id = ? AND date(udp.opened_at) = date(?)
+      WHERE udp.user_id = ? AND DATE(udp.opened_at) = CURDATE()
       ORDER BY udp.opened_at DESC
       LIMIT 1
-    `).get(userId, todayDateStr);
+    `, [userId]);
   },
 
-  /**
-   * Pick a random omen from DAILY_PREDICTIONS pool
-   */
+  /** A random message from the DAILY_PREDICTIONS pool */
   getRandomDailyPrediction() {
-    const predictions = db.prepare(`
+    return queryOne(`
       SELECT dp.daily_prediction_id, dp.card_id, dp.message,
              tc.card_name, tc.image, tc.meaning
       FROM DAILY_PREDICTIONS dp
       LEFT JOIN TAROT_CARDS tc ON dp.card_id = tc.card_id
-    `).all();
-    if (!predictions.length) return null;
-    return predictions[Math.floor(Math.random() * predictions.length)];
+      ORDER BY RAND()
+      LIMIT 1
+    `);
   },
 
-  /**
-   * Record a new daily prediction draw in USER_DAILY_PREDICTIONS
-   */
-  recordDailyPrediction(userId, dailyPredictionId, openedAt) {
-    const stmt = db.prepare(`
-      INSERT INTO USER_DAILY_PREDICTIONS (user_id, daily_prediction_id, opened_at)
-      VALUES (?, ?, ?)
-    `);
-    const info = stmt.run(userId, dailyPredictionId, openedAt);
-    return info.lastInsertRowid;
+  /** Record a daily draw in the M:N junction table USER_DAILY_PREDICTIONS */
+  async recordDailyPrediction(userId, dailyPredictionId) {
+    const result = await query(
+      'INSERT INTO USER_DAILY_PREDICTIONS (user_id, daily_prediction_id, opened_at) VALUES (?, ?, NOW())',
+      [userId, dailyPredictionId]
+    );
+    return result.insertId;
   }
 };
 

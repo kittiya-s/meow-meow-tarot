@@ -26,8 +26,16 @@ const authController = {
         });
       }
 
+      // Step 1B: Validate formats before touching the database
+      if (!/^\S+@\S+\.\S+$/.test(email)) {
+        return res.status(400).json({ error: 'Please enter a valid email address.' });
+      }
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(birth_date)) {
+        return res.status(400).json({ error: 'Birth date must be in YYYY-MM-DD format.' });
+      }
+
       // Step 2: Check if email already exists in the database
-      const existingUser = UserModel.findByEmail(email);
+      const existingUser = await UserModel.findByEmail(email);
       if (existingUser) {
         return res.status(400).json({
           error: 'This email is already registered. Please log in instead.'
@@ -40,7 +48,7 @@ const authController = {
 
       // Step 4: Insert new user into database
       // The SQL Trigger (trg_assign_zodiac_before_insert) will auto-assign zodiac_id based on birth_date!
-      const newUser = UserModel.create({
+      const newUser = await UserModel.create({
         name,
         email,
         hashedPassword,
@@ -81,7 +89,7 @@ const authController = {
       }
 
       // Step 2: Look up user by email
-      const user = UserModel.findByEmail(email);
+      const user = await UserModel.findByEmail(email);
       if (!user) {
         return res.status(401).json({ error: 'Invalid email or password.' });
       }
@@ -121,7 +129,7 @@ const authController = {
   async getProfile(req, res) {
     try {
       // req.user is set by authMiddleware
-      const user = UserModel.findById(req.user.user_id);
+      const user = await UserModel.findById(req.user.user_id);
       if (!user) {
         return res.status(404).json({ error: 'User profile not found.' });
       }

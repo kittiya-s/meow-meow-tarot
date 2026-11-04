@@ -1,7 +1,8 @@
 -- =======================================================
 -- Demo seed: one account per role + a few readings
 -- Run AFTER schema.sql and sample_data.sql
--- (Passwords are placeholder bcrypt-style strings; the running app hashes its own.)
+-- Passwords here are placeholders. When the app starts it sets the real
+-- passwords from .env (ADMIN_*, DEV_*, USER_*) as bcrypt hashes.
 -- =======================================================
 USE meow_meow_tarot;
 

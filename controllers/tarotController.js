@@ -11,9 +11,9 @@ const tarotController = {
    * Get all Tarot cards in the deck
    * Route: GET /api/tarot/cards
    */
-  getAllCards(req, res) {
+  async getAllCards(req, res) {
     try {
-      const cards = TarotModel.getAllCards();
+      const cards = await TarotModel.getAllCards();
       return res.status(200).json(cards);
     } catch (err) {
       console.error('Error fetching cards:', err);
@@ -26,17 +26,18 @@ const tarotController = {
    * Route: POST /api/tarot/reading
    * Body: { cardId (optional), question (optional) }
    */
-  drawCardReading(req, res) {
+  async drawCardReading(req, res) {
     try {
       const { cardId, question } = req.body;
-      const userId = req.user ? req.user.user_id : (req.body.userId || null);
+      // Only trust the logged-in user from the JWT (never a userId sent in the body)
+      const userId = req.user ? req.user.user_id : null;
 
       // Step 1: Select specific card if requested, otherwise pick randomly
       let chosenCard;
       if (cardId) {
-        chosenCard = TarotModel.getCardById(cardId);
+        chosenCard = await TarotModel.getCardById(cardId);
       } else {
-        chosenCard = TarotModel.getRandomCard();
+        chosenCard = await TarotModel.getRandomCard();
       }
 
       if (!chosenCard) {
@@ -49,10 +50,9 @@ const tarotController = {
       // Step 2: If user is authenticated, persist reading to database
       // The SQL Trigger (trg_after_tarot_reading_insert) will auto-log this to READING_AUDIT_LOGS!
       if (userId) {
-        readingId = TarotModel.createReading(
+        readingId = await TarotModel.createReading(
           userId,
           chosenCard.card_id,
-          readingDate,
           question || 'General Reading'
         );
       }
@@ -74,10 +74,10 @@ const tarotController = {
    * Get Tarot Reading history for the authenticated user
    * Route: GET /api/tarot/history
    */
-  getUserHistory(req, res) {
+  async getUserHistory(req, res) {
     try {
       const userId = req.user.user_id;
-      const history = TarotModel.getUserReadings(userId);
+      const history = await TarotModel.getUserReadings(userId);
       return res.status(200).json(history);
     } catch (err) {
       console.error('History Retrieval Error:', err);
@@ -89,14 +89,11 @@ const tarotController = {
    * Check if user has already viewed their Daily Card today
    * Route: GET /api/tarot/daily-status
    */
-  getDailyStatus(req, res) {
+  async getDailyStatus(req, res) {
     try {
       const userId = req.user.user_id;
-      // Get current date string in YYYY-MM-DD
-      const todayDateStr = new Date().toISOString().split('T')[0];
-
-      // Query database for a draw record today
-      const existingRecord = TarotModel.getDailyStatusForUser(userId, todayDateStr);
+      // Query database for a draw record today (MySQL CURDATE())
+      const existingRecord = await TarotModel.getDailyStatusForUser(userId);
       if (existingRecord) {
         return res.status(200).json({
           alreadyViewed: true,
@@ -116,13 +113,11 @@ const tarotController = {
    * Constraint: Users can only draw ONCE per calendar day based on opened_at timestamp.
    * Route: POST /api/tarot/daily-card
    */
-  drawDailyCard(req, res) {
+  async drawDailyCard(req, res) {
     try {
       const userId = req.user.user_id;
-      const todayDateStr = new Date().toISOString().split('T')[0];
-
       // Step 1: Enforce Daily Constraint Check
-      const existing = TarotModel.getDailyStatusForUser(userId, todayDateStr);
+      const existing = await TarotModel.getDailyStatusForUser(userId);
       if (existing) {
         return res.status(400).json({
           alreadyViewed: true,
@@ -132,14 +127,14 @@ const tarotController = {
       }
 
       // Step 2: Pick a random prediction message from DAILY_PREDICTIONS table
-      const randomPrediction = TarotModel.getRandomDailyPrediction();
+      const randomPrediction = await TarotModel.getRandomDailyPrediction();
       if (!randomPrediction) {
         return res.status(404).json({ error: 'No daily predictions available.' });
       }
 
       // Step 3: Record opened_at timestamp into USER_DAILY_PREDICTIONS table
       const openedAt = new Date().toISOString();
-      TarotModel.recordDailyPrediction(userId, randomPrediction.daily_prediction_id, openedAt);
+      await TarotModel.recordDailyPrediction(userId, randomPrediction.daily_prediction_id);
 
       // Step 4: Return drawn card and message
       return res.status(200).json({
