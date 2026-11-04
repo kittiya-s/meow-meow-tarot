@@ -127,6 +127,7 @@ const app = {
     this.authToken = null;
     localStorage.removeItem('meow_tarot_user');
     localStorage.removeItem('meow_tarot_token');
+    this.updateUserUI();
   },
 
   logout() {
@@ -136,6 +137,12 @@ const app = {
   },
 
   updateUserUI() {
+    // Show the Dashboard button only to Admin / Developer (the server still checks every request)
+    const adminBtn = document.getElementById('nav-admin-btn');
+    if (adminBtn) {
+      const role = this.currentUser && this.currentUser.role;
+      adminBtn.style.display = (role === 'admin' || role === 'developer') ? 'inline-flex' : 'none';
+    }
     if (!this.currentUser) return;
     const nameEl = document.getElementById('user-display-name');
     const zodiacEl = document.getElementById('user-display-zodiac');

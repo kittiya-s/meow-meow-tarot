@@ -99,7 +99,8 @@ const numerologyController = {
       }
 
       // Step 2: Execute Stored Procedure / Function to compute Life Path Number
-      const lifePathNumber = spCalculateLifePath(birth_date);
+      // Called through the SQL engine so the routine runs inside the database layer
+      const lifePathNumber = db.prepare('SELECT sp_calculate_life_path(?) AS lpn').get(birth_date).lpn;
 
       // Step 3: Look up detailed interpretation
       const detail = NUMEROLOGY_MEANINGS[lifePathNumber] || NUMEROLOGY_MEANINGS[lifePathNumber % 9 || 9];

@@ -14,7 +14,7 @@ const UserModel = {
    */
   findByEmail(email) {
     return db.prepare(`
-      SELECT u.user_id, u.name, u.email, u.password, u.birth_date, u.zodiac_id,
+      SELECT u.user_id, u.name, u.email, u.password, u.birth_date, u.zodiac_id, u.role,
              z.zodiac_name, z.element, z.symbol
       FROM USERS u
       LEFT JOIN ZODIAC z ON u.zodiac_id = z.zodiac_id
@@ -29,7 +29,7 @@ const UserModel = {
    */
   findById(userId) {
     return db.prepare(`
-      SELECT u.user_id, u.name, u.email, u.birth_date, u.zodiac_id,
+      SELECT u.user_id, u.name, u.email, u.birth_date, u.zodiac_id, u.role,
              z.zodiac_name, z.element, z.symbol
       FROM USERS u
       LEFT JOIN ZODIAC z ON u.zodiac_id = z.zodiac_id

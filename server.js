@@ -18,6 +18,7 @@ const userRoutes = require('./routes/userRoutes');
 const tarotRoutes = require('./routes/tarotRoutes');
 const horoscopeRoutes = require('./routes/horoscopeRoutes');
 const numerologyRoutes = require('./routes/numerologyRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -49,12 +50,6 @@ app.use(express.static(path.join(__dirname, 'public'), {
 app.use('/assets', express.static(path.join(__dirname, 'public', 'assets')));
 app.use('/images', express.static(path.join(__dirname, 'public', 'images')));
 
-// Backward compatibility alias for legacy daily prediction status
-app.get('/api/daily-prediction/status/:userId', (req, res, next) => {
-  req.user = { user_id: req.params.userId };
-  const tarotController = require('./controllers/tarotController');
-  tarotController.getDailyStatus(req, res, next);
-});
 
 // ============================================================================
 // API Route Registration (MVC Architecture)
@@ -75,6 +70,9 @@ app.use('/api', horoscopeRoutes);
 // Numerology endpoints: /api/numerology, /api/numerology/history
 app.use('/api/numerology', numerologyRoutes);
 
+// Role-protected dashboard endpoints: /api/admin/* (Admin and Developer only)
+app.use('/api/admin', adminRoutes);
+
 // Single Page Application (SPA) Fallback: Serve index.html for unknown routes
 app.get('{*path}', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -82,11 +80,9 @@ app.get('{*path}', (req, res) => {
 
 // Global Centralized Error Handling Middleware
 app.use((err, req, res, next) => {
+  // Full details stay in the server log only; the user gets a generic message
   console.error('Unhandled Application Error:', err);
-  res.status(500).json({
-    error: 'Internal Server Error',
-    message: err.message
-  });
+  res.status(500).json({ error: 'Something went wrong. Please try again later.' });
 });
 
 // ============================================================================

@@ -6,6 +6,7 @@
 
 const Database = require('better-sqlite3');
 const path = require('path');
+const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
 // Step 1: Resolve database path from environment variable or default
@@ -105,6 +106,7 @@ function initDatabase() {
       password TEXT NOT NULL,
       birth_date TEXT NOT NULL,
       zodiac_id INTEGER,
+      role TEXT NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'admin', 'developer')),
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (zodiac_id) REFERENCES ZODIAC(zodiac_id) ON DELETE SET NULL
     );
@@ -199,6 +201,12 @@ function initDatabase() {
     END;
   `);
 
+  // 2B. Migration: add the role column to databases created before roles existed
+  const userColumns = db.prepare('PRAGMA table_info(USERS)').all().map(col => col.name);
+  if (!userColumns.includes('role')) {
+    db.exec(`ALTER TABLE USERS ADD COLUMN role TEXT NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'admin', 'developer'))`);
+  }
+
   // 3. Seed default Zodiacs if empty
   const countZodiac = db.prepare('SELECT COUNT(*) as cnt FROM ZODIAC').get().cnt;
   if (countZodiac === 0) {
@@ -267,6 +275,20 @@ function initDatabase() {
     const insC = db.prepare('INSERT INTO TAROT_CARDS (card_name, arcana_type, meaning, image) VALUES (?, ?, ?, ?)');
     cards.forEach(c => insC.run(...c));
   }
+
+  // 4B. Seed one demo account per staff role (Admin, Developer) if missing.
+  // Demo passwords come from .env so no credentials are hardcoded in the code.
+  const staffAccounts = [
+    ['Admin Meow', process.env.ADMIN_EMAIL, process.env.ADMIN_PASSWORD, '1999-04-10', 'admin'],
+    ['Developer Meow', process.env.DEV_EMAIL, process.env.DEV_PASSWORD, '2000-08-15', 'developer']
+  ];
+  const findUser = db.prepare('SELECT user_id FROM USERS WHERE email = ?');
+  const insStaff = db.prepare('INSERT INTO USERS (name, email, password, birth_date, role) VALUES (?, ?, ?, ?, ?)');
+  staffAccounts.forEach(([name, email, password, birthDate, role]) => {
+    if (!email || !password) return; // skip when not configured in .env
+    if (findUser.get(email)) return;   // already exists
+    insStaff.run(name, email, bcrypt.hashSync(password, 10), birthDate, role);
+  });
 
   // 5. Seed Daily Predictions if empty
   const countPreds = db.prepare('SELECT COUNT(*) as cnt FROM DAILY_PREDICTIONS').get().cnt;

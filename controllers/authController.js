@@ -49,7 +49,7 @@ const authController = {
 
       // Step 5: Issue a JSON Web Token (JWT) valid for 7 days
       const token = jwt.sign(
-        { user_id: newUser.user_id, email: newUser.email, name: newUser.name },
+        { user_id: newUser.user_id, email: newUser.email, name: newUser.name, role: newUser.role },
         JWT_SECRET,
         { expiresIn: '7d' }
       );
@@ -94,7 +94,7 @@ const authController = {
 
       // Step 4: Issue JWT token upon successful authentication
       const token = jwt.sign(
-        { user_id: user.user_id, email: user.email, name: user.name },
+        { user_id: user.user_id, email: user.email, name: user.name, role: user.role },
         JWT_SECRET,
         { expiresIn: '7d' }
       );

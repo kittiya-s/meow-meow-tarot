@@ -6,8 +6,11 @@
 
 const jwt = require('jsonwebtoken');
 
-// Secret key used to sign and verify JWT tokens
-const JWT_SECRET = process.env.JWT_SECRET || 'meow_tarot_mystic_secret_key_2026';
+// Secret key used to sign and verify JWT tokens (read from .env, never hardcoded)
+const JWT_SECRET = process.env.JWT_SECRET || require('crypto').randomBytes(32).toString('hex');
+if (!process.env.JWT_SECRET) {
+  console.warn('⚠️  JWT_SECRET is not set in .env. Using a temporary random secret (logins reset on restart).');
+}
 
 /**
  * Mandatory Authentication Middleware

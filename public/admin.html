@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meow Meow Tarot · Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #120924; --panel: #20133b; --panel-2: #2a1a4a; --line: rgba(147, 83, 233, 0.35);
+      --gold: #ffd154; --text: #fdf8ff; --sub: #c9bede; --muted: #8b7ca8;
+      --green: #34d399; --red: #f43f5e; --purple: #7047eb;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 24px; border-bottom: 1px solid var(--line); background: var(--panel); position: sticky; top: 0; z-index: 5; }
+    h1 { font-family: 'Cinzel', serif; color: var(--gold); font-size: 22px; }
+    h2 { font-family: 'Cinzel', serif; color: var(--gold); font-size: 18px; margin-bottom: 12px; }
+    .who { color: var(--sub); font-size: 14px; }
+    .badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+    .badge.admin { background: var(--gold); color: #120924; }
+    .badge.developer { background: var(--green); color: #120924; }
+    .badge.user { background: var(--muted); color: #120924; }
+    main { max-width: 1100px; margin: 0 auto; padding: 24px; }
+    .tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .tab { background: var(--panel); color: var(--sub); border: 1px solid var(--line); padding: 8px 16px; border-radius: 10px; cursor: pointer; font: inherit; font-weight: 600; }
+    .tab.active { background: var(--purple); color: #fff; border-color: var(--purple); }
+    .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 20px; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { color: var(--gold); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .5px; }
+    td.meaning { color: var(--sub); max-width: 360px; }
+    .btn { border: none; border-radius: 8px; padding: 7px 12px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+    .btn-gold { background: var(--gold); color: #120924; }
+    .btn-green { background: var(--green); color: #120924; }
+    .btn-red { background: var(--red); color: #fff; }
+    .btn-ghost { background: transparent; color: var(--sub); border: 1px solid var(--line); }
+    .row-actions { display: flex; gap: 6px; }
+    form.card-form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    form.card-form .full { grid-column: 1 / -1; }
+    label { display: block; font-size: 12px; color: var(--sub); margin-bottom: 4px; font-weight: 600; }
+    input, select, textarea { width: 100%; background: var(--panel-2); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 9px 10px; font: inherit; }
+    textarea { min-height: 70px; resize: vertical; }
+    .form-actions { display: flex; gap: 8px; }
+    .msg { margin-top: 10px; font-size: 14px; min-height: 20px; }
+    .msg.error { color: var(--red); } .msg.ok { color: var(--green); }
+    .stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
+    .stat { background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+    .stat b { display: block; font-size: 24px; color: var(--gold); }
+    .stat span { font-size: 12px; color: var(--sub); }
+    .denied { text-align: center; padding: 48px 20px; }
+    .denied p { color: var(--sub); margin: 10px 0 20px; }
+    .hidden { display: none !important; }
+    .note { color: var(--muted); font-size: 13px; margin-bottom: 12px; }
+    a { color: var(--gold); }
+    @media (max-width: 700px) { form.card-form { grid-template-columns: 1fr; } td.meaning { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🐱 Meow Meow Dashboard</h1>
+    <div class="who" id="who">Checking access…</div>
+    <a class="btn btn-ghost" href="/">← Back to app</a>
+  </header>
+
+  <main>
+    <!-- Shown when not logged in or when the server refuses access -->
+    <section id="denied" class="panel denied hidden">
+      <h2 id="denied-title">Access denied</h2>
+      <p id="denied-text"></p>
+      <a class="btn btn-gold" href="/">Go to Meow Meow Tarot</a>
+    </section>
+
+    <div id="tabs" class="tabs hidden">
+      <button class="tab" data-tab="cards">🃏 Tarot Cards</button>
+      <button class="tab" data-tab="users" data-role="admin">👥 Users</button>
+      <button class="tab" data-tab="audit" data-role="developer">📜 Audit Log</button>
+      <button class="tab" data-tab="stats" data-role="developer">📊 Database Stats</button>
+    </div>
+
+    <!-- CARDS: admin = full CRUD, developer = read-only -->
+    <section id="tab-cards" class="hidden">
+      <div class="panel" id="card-form-panel" data-role="admin">
+        <h2 id="card-form-title">Add New Card</h2>
+        <form class="card-form" id="card-form" novalidate>
+          <input type="hidden" id="card-id">
+          <div>
+            <label for="card-name">Card name</label>
+            <input id="card-name" maxlength="60" placeholder="e.g. The Tower">
+          </div>
+          <div>
+            <label for="card-arcana">Arcana type</label>
+            <select id="card-arcana">
+              <option value="Major Arcana">Major Arcana</option>
+              <option value="Minor Arcana">Minor Arcana</option>
+            </select>
+          </div>
+          <div class="full">
+            <label for="card-meaning">Meaning</label>
+            <textarea id="card-meaning" maxlength="500" placeholder="At least 10 characters"></textarea>
+          </div>
+          <div class="full">
+            <label for="card-image">Image path (leave empty to use card back)</label>
+            <input id="card-image" placeholder="/assets/cards/card_back.svg">
+          </div>
+          <div class="full form-actions">
+            <button class="btn btn-green" type="submit" id="card-submit">Create Card</button>
+            <button class="btn btn-ghost hidden" type="button" id="card-cancel">Cancel edit</button>
+          </div>
+        </form>
+        <div class="msg" id="card-msg"></div>
+      </div>
+
+      <div class="panel">
+        <h2>All Cards</h2>
+        <p class="note" id="cards-note"></p>
+        <table>
+          <thead><tr><th>ID</th><th>Name</th><th>Arcana</th><th>Meaning</th><th>Drawn</th><th data-role="admin">Actions</th></tr></thead>
+          <tbody id="cards-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- USERS: admin only -->
+    <section id="tab-users" class="hidden">
+      <div class="panel">
+        <h2>Users &amp; Roles</h2>
+        <p class="note">Deleting a user also deletes their readings, numerology results and daily draws (ON DELETE CASCADE). Audit log rows are kept.</p>
+        <div class="msg" id="user-msg"></div>
+        <table>
+          <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Zodiac</th><th>Readings</th><th>Role</th><th>Actions</th></tr></thead>
+          <tbody id="users-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- AUDIT LOG: developer only (rows written by trigger trg_after_tarot_reading_insert) -->
+    <section id="tab-audit" class="hidden">
+      <div class="panel">
+        <h2>Reading Audit Log</h2>
+        <p class="note">Every row here is inserted automatically by the trigger <b>trg_after_tarot_reading_insert</b> when a logged-in user draws a card.</p>
+        <button class="btn btn-ghost" id="audit-refresh" style="margin-bottom:12px">↻ Refresh</button>
+        <table>
+          <thead><tr><th>Log</th><th>Reading</th><th>User</th><th>Card</th><th>Logged at</th><th>Note</th></tr></thead>
+          <tbody id="audit-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- STATS: developer only -->
+    <section id="tab-stats" class="hidden">
+      <div class="panel">
+        <h2>Database Row Counts</h2>
+        <div class="stats" id="stats-grid"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/admin.js"></script>
+</body>
+</html>

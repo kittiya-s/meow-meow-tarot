@@ -56,6 +56,7 @@ CREATE TABLE USERS (
     password VARCHAR(255) NOT NULL,
     birth_date DATE NOT NULL,
     zodiac_id INT DEFAULT NULL,
+    role ENUM('user', 'admin', 'developer') NOT NULL DEFAULT 'user',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (zodiac_id) REFERENCES ZODIAC(zodiac_id) ON DELETE SET NULL
 );

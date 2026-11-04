@@ -24,6 +24,9 @@ A cat-themed fortune telling web app with tarot readings, daily cards, zodiac ho
 - **Zodiac Horoscopes**: overall, study, work and love predictions for each sign
 - **Numerology**: life path number calculation
 - **User Accounts**: register, login (JWT) and profile editing
+- **Role-Based Access Control**: three roles (User, Admin, Developer) checked on the server
+- **Admin Dashboard**: create, edit and delete tarot cards; change user roles; delete users
+- **Developer Dashboard**: read the audit log written by a SQL trigger and view table row counts
 - **History**: saved tarot and numerology results for logged-in users
 
 ## Tech Stack
@@ -45,11 +48,16 @@ npm install
 ```
 
 ### Environment Variables
-Create a `.env` file in the project root:
+Copy `.env.example` to `.env` and fill in your own values:
 ```
-JWT_SECRET=your_own_secret_key
 PORT=3000
+JWT_SECRET=your_own_secret_key
+ADMIN_EMAIL=admin@meowtarot.com
+ADMIN_PASSWORD=your_admin_password
+DEV_EMAIL=dev@meowtarot.com
+DEV_PASSWORD=your_dev_password
 ```
+The Admin and Developer accounts are created automatically on first start. Anyone who registers through the app gets the `user` role.
 
 ### Run
 ```bash
@@ -79,6 +87,20 @@ server.js      app entry point
 | GET | `/api/tarot/history` | Reading history (login required) |
 | GET | `/api/horoscope/:identifier` | Horoscope for a zodiac sign |
 | POST | `/api/numerology` | Calculate life path number |
+| GET / POST / PUT / DELETE | `/api/admin/cards` | Manage tarot cards (Admin) |
+| GET / PUT / DELETE | `/api/admin/users` | Manage users and roles (Admin) |
+| GET | `/api/admin/audit-logs` | Trigger-written audit log (Developer) |
+
+## Roles and Permissions
+| Action | User | Developer | Admin |
+|---|:-:|:-:|:-:|
+| Tarot, horoscope, numerology, history | ✅ | ✅ | ✅ |
+| View all tarot cards in dashboard | ❌ | ✅ (read-only) | ✅ |
+| Create / edit / delete tarot cards | ❌ | ❌ | ✅ |
+| Change user roles, delete users | ❌ | ❌ | ✅ |
+| Reading audit log, database stats | ❌ | ✅ | ❌ |
+
+Permissions are enforced in `middleware/roleMiddleware.js`, which reads the role from the `USERS` table on every request. Blocked requests return `403 Forbidden`.
 
 ## Notes
 Card artwork is original SVG designed for this project. The deck is a custom 22-card set.
