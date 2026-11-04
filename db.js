@@ -261,8 +261,8 @@ function initDatabase() {
       ['The Sun', 'Major Arcana', 'Positivity, fun, warmth, success, and vitality. Radiant joy and abundant happiness illuminate every corner of your life!', '/assets/cards/card_17.svg'],
       ['Judgement', 'Major Arcana', 'Awakening, rebirth, inner calling, and absolution. Heed your higher purpose and rise into renewed clarity.', '/assets/cards/card_18.svg'],
       ['The World', 'Major Arcana', 'Completion, integration, accomplishment, and travel. A grand cycle finishes in triumphant fulfillment and wholeness.', '/assets/cards/card_19.svg'],
-      ['Queen of Wands', 'Major Arcana', 'This card is a positive sign of self-confidence, leadership, and pursuing your goals with enthusiasm. It encourages you to believe in yourself, show your true personality, and take the initiative rather than waiting for others to make the first move.', '/assets/cards/card_20.svg'],
-      ['Ace of Cups', 'Major Arcana', 'Overwhelming love, compassion, creative fertility, and spiritual peace. Your emotional vessel overflows with sweet blessings.', '/assets/cards/card_21.svg']
+      ['Queen of Wands', 'Minor Arcana', 'This card is a positive sign of self-confidence, leadership, and pursuing your goals with enthusiasm. It encourages you to believe in yourself, show your true personality, and take the initiative rather than waiting for others to make the first move.', '/assets/cards/card_20.svg'],
+      ['Ace of Cups', 'Minor Arcana', 'Overwhelming love, compassion, creative fertility, and spiritual peace. Your emotional vessel overflows with sweet blessings.', '/assets/cards/card_21.svg']
     ];
     const insC = db.prepare('INSERT INTO TAROT_CARDS (card_name, arcana_type, meaning, image) VALUES (?, ?, ?, ?)');
     cards.forEach(c => insC.run(...c));

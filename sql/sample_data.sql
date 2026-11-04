@@ -53,8 +53,8 @@ INSERT IGNORE INTO TAROT_CARDS (card_id, card_name, arcana_type, meaning, image)
 (18, 'The Sun', 'Major Arcana', 'Positivity, fun, warmth, success, and vitality. Radiant joy and abundant happiness illuminate every corner of your life!', '/assets/cards/card_17.svg'),
 (19, 'Judgement', 'Major Arcana', 'Awakening, rebirth, inner calling, and absolution. Heed your higher purpose and rise into renewed clarity.', '/assets/cards/card_18.svg'),
 (20, 'The World', 'Major Arcana', 'Completion, integration, accomplishment, and travel. A grand cycle finishes in triumphant fulfillment and wholeness.', '/assets/cards/card_19.svg'),
-(21, 'Queen of Wands', 'Major Arcana', 'This card is a positive sign of self-confidence, leadership, and pursuing your goals with enthusiasm. It encourages you to believe in yourself, show your true personality, and take the initiative rather than waiting for others to make the first move.', '/assets/cards/card_20.svg'),
-(22, 'Ace of Cups', 'Major Arcana', 'Overwhelming love, compassion, creative fertility, and spiritual peace. Your emotional vessel overflows with sweet blessings.', '/assets/cards/card_21.svg');
+(21, 'Queen of Wands', 'Minor Arcana', 'This card is a positive sign of self-confidence, leadership, and pursuing your goals with enthusiasm. It encourages you to believe in yourself, show your true personality, and take the initiative rather than waiting for others to make the first move.', '/assets/cards/card_20.svg'),
+(22, 'Ace of Cups', 'Minor Arcana', 'Overwhelming love, compassion, creative fertility, and spiritual peace. Your emotional vessel overflows with sweet blessings.', '/assets/cards/card_21.svg');
 
 -- Insert Daily Predictions
 INSERT IGNORE INTO DAILY_PREDICTIONS (daily_prediction_id, card_id, message) VALUES

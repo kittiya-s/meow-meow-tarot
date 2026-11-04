@@ -1,7 +1,7 @@
 {
-  "name": "test",
+  "name": "meow-meow-tarot",
   "version": "1.0.0",
-  "description": "",
+  "description": "Cat-themed fortune telling web app with tarot, horoscopes and numerology",
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
