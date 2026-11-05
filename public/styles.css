@@ -362,6 +362,45 @@ body {
   box-shadow: 0 0 12px rgba(112, 71, 235, 0.4);
 }
 
+/* Show / hide password button (eye icon inside the password box) */
+.password-wrap {
+  position: relative;
+}
+
+.password-wrap .form-input {
+  padding-right: 48px;
+}
+
+.toggle-password {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s;
+}
+
+.toggle-password:hover,
+.toggle-password:focus-visible {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.08);
+  outline: none;
+}
+
+.toggle-password .icon-eye-off { display: none; }
+.toggle-password[aria-pressed="true"] .icon-eye { display: none; }
+.toggle-password[aria-pressed="true"] .icon-eye-off { display: block; }
+
 .auth-toggle {
   text-align: center;
   margin-top: 18px;

@@ -666,3 +666,14 @@ const app = {
 document.addEventListener('DOMContentLoaded', () => {
   app.init();
 });
+
+// ============================================================================
+// Show / hide password (eye icon on the login and sign up form)
+// ============================================================================
+function togglePassword(button) {
+  const input = button.parentElement.querySelector('input');
+  const showing = input.type === 'text';
+  input.type = showing ? 'password' : 'text';
+  button.setAttribute('aria-pressed', String(!showing));
+  button.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+}
