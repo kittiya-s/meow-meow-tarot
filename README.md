@@ -35,6 +35,8 @@ npm install
 ### Database
 In MySQL Workbench open `sql/reset_demo.sql` and run the whole file. It creates the `meow_meow_tarot` database with all tables, the stored procedure `sp_calculate_life_path`, the function `fn_get_zodiac_id`, three triggers and sample data. Run it again any time to reset the data.
 
+Then open `sql/create_app_user.sql`, replace `YOUR_PASSWORD`, and run it. This creates `meow_app`, the user the app connects with instead of root (least privilege).
+
 ### Environment Variables
 Copy `.env.example` to `.env` and fill in your own values (MySQL login and one demo account per role). The Admin, Developer and User demo accounts are created or refreshed automatically on every start. Anyone who registers through the app gets the `user` role.
 
